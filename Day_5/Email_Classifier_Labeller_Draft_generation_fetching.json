@@ -1,0 +1,331 @@
+{
+  "name": "Email_Classifier_Labeller_Draft_generation_fetching",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -352,
+        -192
+      ],
+      "id": "78f950b0-fa39-4f6f-8708-c485ea21de6f",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XOgtWKTp6PiU03hV",
+          "name": "Divij-Mentor"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "=Body- {{ $json.snippet }}\n\nSubject- {{ $json.Subject }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Important Emails",
+              "description": "Any email which requires attention from learners, college staff members, courses inquiries, mentoring help needed etc. requiring any services and consultancy or advisory for my AI expertise. "
+            },
+            {
+              "category": "News Letters",
+              "description": "Any email which is a newsletter containing updates and news of any product and services should be classified in this category"
+            },
+            {
+              "category": "Promotional",
+              "description": "Any email having promotional thing and just a redundant email telling about their product and services or updates and offers"
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "Please classify the text provided by the user into one of the following categories: {categories}, and use the provided formatting instructions below. Don't explain, and only output the json."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -128
+      ],
+      "id": "ce769d53-51cc-46d0-9297-4a6d0647940d",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_3909389929911741162"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        304,
+        -64
+      ],
+      "id": "98920703-90e9-47f2-97bc-d740976b0c2d",
+      "name": "Add label to message1",
+      "webhookId": "66611990-c15c-4959-b3de-6fed71c022e1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XOgtWKTp6PiU03hV",
+          "name": "Divij-Mentor"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_4275531974797102860",
+          "Label_3410947367156789350"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        320,
+        112
+      ],
+      "id": "bbf0f199-1e07-41a1-927b-0f8da20ace2c",
+      "name": "Add label to message2",
+      "webhookId": "66611990-c15c-4959-b3de-6fed71c022e1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XOgtWKTp6PiU03hV",
+          "name": "Divij-Mentor"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "IMPORTANT",
+          "Label_3520701813611120294"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        336,
+        -256
+      ],
+      "id": "b40852ec-329e-40f5-b4a5-03823117071d",
+      "name": "Add label to message",
+      "webhookId": "c5c1431b-4c6a-44e0-8b0f-3b0cb4eff8fb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XOgtWKTp6PiU03hV",
+          "name": "Divij-Mentor"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=<Prompt> \n\nThe email body is- {{ $('Gmail Trigger').item.json.snippet }}\n\nAlways end your email with Thanks & Regards\n<Name>\nDon't give me subject in output\n\nOther Instruction-\nAbout my company- \nAbout the role"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        640,
+        -240
+      ],
+      "id": "f9665243-99c6-4f0c-a738-b4156f06461b",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "KgeowNkzyiBwGKU3",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Add label to message').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.message.content }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        976,
+        -32
+      ],
+      "id": "b0a04ca3-4054-459a-b53e-dbd6695be866",
+      "name": "Reply to a message",
+      "webhookId": "ee44a0c1-578a-413c-b5aa-c626e9f72d9a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XOgtWKTp6PiU03hV",
+          "name": "Divij-Mentor"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $('Gmail Trigger').item.json.Subject }}",
+        "message": "={{ $json.message.content }}",
+        "options": {
+          "threadId": "={{ $('Gmail Trigger').item.json.threadId }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        992,
+        -240
+      ],
+      "id": "035d6e62-0be3-4d60-ac38-42c4e5d60008",
+      "name": "Create a draft",
+      "webhookId": "7e9209d3-5fdd-449f-be62-452bd9183d8e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XOgtWKTp6PiU03hV",
+          "name": "Divij-Mentor"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -160,
+        80
+      ],
+      "id": "403fe689-0fab-4130-9cf3-64e7cd01df10",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "61avKbq3MZ93nzjH",
+          "name": "OpenAi account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Add label to message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add label to message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add label to message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add label to message1": {
+      "main": [
+        []
+      ]
+    },
+    "Add label to message": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7d5f4266-8da5-420c-b1ac-1ba87067300e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5adcf055af070598f43d6403984bb72f646a6684587b890d0694cbc7278091f8"
+  },
+  "id": "nqsPfF3qEXMvUOru",
+  "tags": []
+}

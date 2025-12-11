@@ -1,0 +1,1 @@
+!pip install streamlit langchain langchain-openai langchain-community tavily-python wikipedia arxiv faiss-cpu sentence-transformers pypdf
